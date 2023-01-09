@@ -194,12 +194,8 @@ let modelo=[];
 //       dados.prices.map(p => p[1])
 //       );
 //       console.log(modelo[0][0],modelo[1][0],modelo[2][0],modelo[3][0]);
-
- 
-// var _gerarCsv = function(){
-     
+// var _gerarCsv = function(){ 
 //     var csv = 'dia, mes, ano,preco\n';
-
 //     for(var i=0;i<modelo[0].length;i++){
 //       csv +=      modelo[0][i]+',';
 //       csv +=      modelo[1][i]+',';
