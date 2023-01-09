@@ -9,23 +9,38 @@
 <script src="js/chartli.js"></script>
 <script src="js/Chart.min.js"></script>
 </head>
+<style>
+@media only screen and (max-width: 600px)
+{
+    
+  .anuncios {
+        opacity: 0; /* desaparece no mobile. */
+         overflow: hidden;
+          display: none;
+    }
+    
+    
+}
+</style>
 <body>
 <div class="w3-cell-row">
-<div class="w3-container w3-green w3-cell">
+<div class="w3-container w3-green w3-cell anuncios">
     <p>Anuncio.</p>
+    
   </div>
   <div class="w3-container  w3-cell w3-card w3-margin-bottom w3-round-large">
+
+
   <form method="POST">
   <label for="criptomoeda">Nome da criptomoeda:</label>
   <input type="text" id="criptomoeda" name="criptomoeda" required>
   <button type="submit" class="w3-button w3-white w3-border">Buscar cotação</button>
 </form>
-
-
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   // Busca a cotação da criptomoeda do CoinGeko
-  $criptomoeda = urlencode($_POST['criptomoeda']);
+  $cripto = urlencode($_POST['criptomoeda']);
+  $criptomoeda = str_replace("+","",ltrim(rtrim(strtolower( $cripto))));
   $url = "https://api.coingecko.com/api/v3/coins/${criptomoeda}";
 
   $ch = curl_init();
@@ -39,19 +54,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit;
   }
   // Exibe o preço atual, a abertura do preço no dia, a máxima do preço no dia e a mínima do preço no dia
-  echo  '<b style=color:blue>'.$criptomoeda.'</b><br>';
+  echo  '<h4 style=color:blue>'.$criptomoeda.'</h4><br>';
   echo "Preço atual: ".$dados['market_data']['current_price']['usd']." USD<br>";
   echo "Variação da ultima hora: ".$dados['market_data']['price_change_percentage_1h_in_currency']['usd']." USD<br>";
-  echo "<br><b style=color:green>Máxima do dia: <br>"
-  .$dados['market_data']['high_24h']['usd']." ▲ USD</b><br>";
-  echo "<br><b style=color:red>Mínima do dia: <br>"
-  .$dados['market_data']['low_24h']['usd']." ▼ USD</b><br>";
+  echo "<br><b style=color:green>Máxima do dia: <br> ▲ "
+  .$dados['market_data']['high_24h']['usd']."  USD</b><br>";
+  echo "<br><b style=color:red>Mínima do dia: <br> ▼ "
+  .$dados['market_data']['low_24h']['usd']."  USD</b><br>";
 
   // Exibe um gráfico mostrando a variação do preço no dia por intervalos de 15 minutos
  
 
 ?>
-
+  <form method="POST">
+  <label for="criptomoeda">Nome da criptomoeda:</label>
+  <input type="text" id="criptomoeda" name="criptomoeda" required>
+  <button type="submit" class="w3-button w3-white w3-border">Buscar cotação</button>
+</form>
 
   
 
@@ -65,44 +84,33 @@ fetch(`https://api.coingecko.com/api/v3/coins/${criptomoeda}/market_chart?vs_cur
   .then(dados => {
 		 // Exibe o gráfico temporal
     var ctx = document.getElementById('grafico').getContext('2d');
+    
     var grafico = new Chart(ctx, {
       type: 'line',
       data: {
         labels: dados.prices.map(p => {
 		  var date = new Date(p[0]);
 		  return date.getHours() + ':' + date.getMinutes();}), // Timestamps em milissegundos
-        datasets: [{
-          label: 'Preço',
-          data: dados.prices.map(p => p[1]), // Preços
-          backgroundColor: 'rgba(0, 230, 0, 0.2)',
-          borderColor: '#DDDbff',
-          scales: {
-      y: {
-        // the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
-        suggestedMin: 30,
-
-        // the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
-        suggestedMax: 50,
-      }
-    }
-        },
-		{
+        datasets: [
+         
+          {
           label: 'Volume',
           data: dados.total_volumes.map(p => p[1]), // Preços
           backgroundColor: 'rgba(255, 99, 71, 0.2)',
           borderColor: '#DDDbff',
-		  scales: {
-      x: {
-        display: true,
-      },
-      y: {
-        display: true,
-        type: 'logarithmic',
+            
+          },
+           {
+          label: 'Preço',
+          data: dados.prices.map(p => p[1]), // Preços
+          backgroundColor: 'rgba(0, 230, 0, 0.2)',
+          borderColor: '#DDDbff',
+          
+          },
+		    ]
       }
-    }
-        }
-		]
-      }
+                
+			
     });
   });
         
@@ -110,7 +118,7 @@ fetch(`https://api.coingecko.com/api/v3/coins/${criptomoeda}/market_chart?vs_cur
   .then(response => response.json())
   .then(dados => {
 		 // Exibe o gráfico temporal
-     var semana=['DOmingo','segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+     var semana=['Domingo','segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
     var ctx = document.getElementById('grafico7').getContext('2d');
     var grafico = new Chart(ctx, {
       type: 'line',
@@ -123,32 +131,16 @@ fetch(`https://api.coingecko.com/api/v3/coins/${criptomoeda}/market_chart?vs_cur
           data: dados.prices.map(p => p[1]), // Preços
           backgroundColor: 'rgba(0, 230, 0, 0.2)',
           borderColor: '#DDDbff',
-          scales: {
-      y: {
-        // the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
-        suggestedMin: 30,
-
-        // the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
-        suggestedMax: 50,
-      }
-    }
+          
         },
-		{
+		    {
           label: 'Volume',
           data: dados.total_volumes.map(p => p[1]), // Preços
           backgroundColor: 'rgba(255, 99, 71, 0.2)',
           borderColor: '#DDDbff',
-		  scales: {
-      x: {
-        display: true,
-      },
-      y: {
-        display: true,
-        type: 'logarithmic',
-      }
-    }
+		 
         }
-		]
+		    ]
       }
     });
   });
@@ -157,7 +149,7 @@ fetch(`https://api.coingecko.com/api/v3/coins/${criptomoeda}/market_chart?vs_cur
   .then(response => response.json())
   .then(dados => {
 		
-     var semana=['DOmingo','segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+     var semana=['Domingo','segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 
    
     var ctx = document.getElementById('grafico30').getContext('2d');
@@ -172,32 +164,16 @@ fetch(`https://api.coingecko.com/api/v3/coins/${criptomoeda}/market_chart?vs_cur
           data: dados.prices.map(p => p[1]), // Preços
           backgroundColor: 'rgba(0, 230, 0, 0.2)',
           borderColor: '#DDDbff',
-          scales: {
-      y: {
-        // the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
-        suggestedMin: 30,
-
-        // the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
-        suggestedMax: 50,
-      }
-    }
+         
         },
-		{
+		    {
           label: 'Volume',
           data: dados.total_volumes.map(p => p[1]), // Preços
           backgroundColor: 'rgba(255, 99, 71, 0.2)',
           borderColor: '#DDDbff',
-		  scales: {
-      x: {
-        display: true,
-      },
-      y: {
-        display: true,
-        type: 'logarithmic',
-      }
-    }
+		  
         }
-		]
+		    ]
       }
     });
   });
@@ -255,32 +231,16 @@ let modelo=[];
           data: dados.prices.map(p => p[1]), // Preços
           backgroundColor: 'rgba(0, 230, 0, 0.2)',
           borderColor: '#DDDbff',
-          scales: {
-      y: {
-        // the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
-        suggestedMin: 30,
-
-        // the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
-        suggestedMax: 50,
-      }
-    }
+          
         },
-		{
+		    {
           label: 'Volume',
           data: dados.total_volumes.map(p => p[1]), // Preços
           backgroundColor: 'rgba(255, 99, 71, 0.2)',
           borderColor: '#DDDbff',
-		  scales: {
-      x: {
-        display: true,
-      },
-      y: {
-        display: true,
-        type: 'logarithmic',
-      }
-    }
+		  
         }
-		]
+		    ]
       }
     });
   });
@@ -331,8 +291,9 @@ let modelo=[];
 </div>
 
 </div>
-   <div class="w3-container w3-green w3-cell">
+   <div class="w3-container w3-green w3-cell anuncios">
     <p>Anuncio.</p>
-  </div>
-
+  
+</div> 
+</div>
     
